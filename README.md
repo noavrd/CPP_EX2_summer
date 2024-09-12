@@ -8,6 +8,8 @@ It also contains a `Complex` class to demonstrate tree functionality with comple
 The project uses SFML for graphics to show the tree live on your screen.
 In addition there are unit tests with Doctest to ensure the implementation is correct.
 
+### There are screenshots attatched of the tree visuals and success tests
+
 ## Classes
 
 ### Tree<T>
