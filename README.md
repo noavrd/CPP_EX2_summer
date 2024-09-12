@@ -89,11 +89,12 @@ Follow these steps to install it:
    ```sh
    make
 
-5. **Run**:
-    Run project:
+5. **Run project**:
+
     ```sh
     ./tree
 
-Run tests:
+5. **Run tests**:
+
     ```sh
     ./test
