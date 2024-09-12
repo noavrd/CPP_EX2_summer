@@ -83,6 +83,16 @@ Follow these steps to install it:
    ```sh
    make test
 
-4. **Only run**:
+4. **Build & run seperatlu**:
 
-    If you want, you can also just run the project (after `make`) with: `./tree` and `./test` for tests
+   Compile the entire project and tests:
+   ```sh
+   make
+
+    Run project:
+   ```sh
+   ./tree
+
+    Run tests:
+   ```sh
+   ./test
