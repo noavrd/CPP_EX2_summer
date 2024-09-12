@@ -81,7 +81,7 @@ Follow these steps to install it:
 
 3. **Build & run the tests**:
 
-   To compile & run the project:
+   To compile & run the tests:
    ```sh
    make test
 
