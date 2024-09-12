@@ -1,5 +1,5 @@
 // noavrd@gmail.com
- 
+
 #ifndef NODE_HPP
 #define NODE_HPP
 
@@ -46,7 +46,7 @@ public:
      * 
      * @throws runtime_error if the maximum number is exceeded
      */
-    void add_child(Node* child, size_t k) {
+    void add_sub_node(Node* child, size_t k) {
         if (children.size() >= k) {
             throw runtime_error("############ Error: Too much children... ############");
         }
