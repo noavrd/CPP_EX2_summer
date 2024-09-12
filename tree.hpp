@@ -92,11 +92,12 @@ public:
 
         Node<T> *parentNode = find_node(root, parent.get_value());
 
-        if (parentNode) {
-            parentNode->add_sub_node(&child, maxChildren);
-        } else {
+        if (!parentNode) {
             throw runtime_error("############ Error: There is no parent to the node... ############");
-        }
+        } 
+
+        parentNode->add_sub_node(&child, maxChildren);
+
     }
 
     // Template to prevent adding a child to a parent when both have differnet types
@@ -111,17 +112,19 @@ public:
      * Pre-order iterator class
      * Provides an iterator for traversing the tree in pre-order (root, children).
      */
-    class pre_order_iterator {
+    class preOrderIterator {
     private:
         stack<Node<T> *> nodes;
         size_t maxChildren;
 
     public:
-        explicit pre_order_iterator(Node<T> *node, size_t maxChildren) : maxChildren(maxChildren) {
-            if (node) nodes.push(node);
+        explicit preOrderIterator(Node<T> *node, size_t maxChildren) : maxChildren(maxChildren) {
+            if (node) { 
+                nodes.push(node); 
+            }
         }
 
-        bool operator!=(const pre_order_iterator &other) const {
+        bool operator!=(const preOrderIterator &other) const {
             return !nodes.empty() != !other.nodes.empty();
         }
 
@@ -133,7 +136,7 @@ public:
             return *nodes.top();
         }
 
-        pre_order_iterator &operator++() {
+        preOrderIterator &operator++() {
             const auto &children = nodes.top()->get_children();
             nodes.pop();
 
@@ -150,28 +153,28 @@ public:
      * Get an iterator to the beginning of the pre-order traversal
      * @return Pre-order iterator pointing to the root node
      */
-    pre_order_iterator begin_pre_order() const {
-        return pre_order_iterator(root, maxChildren);
+    preOrderIterator begin_pre_order() const {
+        return preOrderIterator(root, maxChildren);
     }
 
     /**
      * Get an iterator to the end of the pre-order traversal
      * @return Pre-order iterator pointing to the end (nullptr)
      */
-    pre_order_iterator end_pre_order() const {
-        return pre_order_iterator(nullptr, maxChildren);
+    preOrderIterator end_pre_order() const {
+        return preOrderIterator(nullptr, maxChildren);
     }
 
     /** 
      * In-order iterator class
      * Provides an iterator for traversing the tree in in-order (left, root, right) for binary trees.
      */
-    class in_order_iterator {
+    class inOrderIterator {
     private:
         stack<Node<T> *> nodes;
         size_t maxChildren;
 
-        void push_to_left_child(Node<T> *node) {
+        void add_left_child(Node<T> *node) {
             while (node != nullptr) {
                 nodes.push(node);
 
@@ -184,18 +187,21 @@ public:
         }
 
     public:
-        explicit in_order_iterator(Node<T> *node, size_t maxChildren) : maxChildren(maxChildren) {
+        explicit inOrderIterator(Node<T> *node, size_t maxChildren) : maxChildren(maxChildren) {
             if (node) {
                 if (maxChildren == 2) {
-                    push_to_left_child(node);
+                    add_left_child(node);
                 } else {
                     nodes.push(node);
-                    while (!nodes.empty() && !nodes.top()) nodes.pop();
+                     // Pop the top node if it's null
+                    while (!nodes.empty() && !nodes.top()) {
+                        nodes.pop(); 
+                    }
                 }
             }
         }
 
-        bool operator!=(const in_order_iterator &other) const {
+        bool operator!=(const inOrderIterator &other) const {
             return !nodes.empty() != !other.nodes.empty();
         }
 
@@ -207,18 +213,18 @@ public:
             return *nodes.top();
         }
 
-        in_order_iterator &operator++() {
-            if (nodes.empty()) { return *this; }
+        inOrderIterator &operator++() {
+            if (nodes.empty()) { 
+                return *this; 
+            }
+
             const auto &children = nodes.top()->get_children();    
             nodes.pop();
 
-            if (maxChildren == 2) {    
-                if (children.size() > 1 && children[1] != nullptr) {
-                    push_to_left_child(children[1]);
-                }
-
+            if (maxChildren == 2 && children.size() > 1 && children[1] != nullptr) {    
+                    add_left_child(children[1]);
             } else {
-                for (auto child =children.rbegin(); child !=children.rend(); ++child) {
+                for (auto child = children.rbegin(); child != children.rend(); ++child) {
                     if (*child != nullptr)
                         nodes.push(*child);
                 }
@@ -232,31 +238,32 @@ public:
      * Get an iterator to the beginning of the in-order traversal
      * @return In-order iterator pointing to the root node
      */
-    in_order_iterator begin_in_order() const {
-        return in_order_iterator(root, maxChildren);
+    inOrderIterator begin_in_order() const {
+        return inOrderIterator(root, maxChildren);
     }
 
     /**
      * Get an iterator to the end of the in-order traversal
      * @return In-order iterator pointing to the end (nullptr)
      */
-    in_order_iterator end_in_order() const {
-        return in_order_iterator(nullptr, maxChildren);
+    inOrderIterator end_in_order() const {
+        return inOrderIterator(nullptr, maxChildren);
     }
 
     /** 
      * Post-order iterator class
      * Provides an iterator for traversing the tree in post-order (children, root).
      */
-    class post_order_iterator {
+    class postOrderIterator {
     private:
-        stack<Node<T> *> nodes;
-        Node<T> *current_node;
+        Node<T> *currentNode;
         size_t maxChildren;
+        stack<Node<T> *> nodes;
 
-        void push_to_left_child(Node<T> *node) {
+        void add_left_child(Node<T> *node) {
             while (node) {
                 nodes.push(node);
+
                 if (!node->get_children().empty()) {
                     node = node->get_children()[0];
                 } else {
@@ -266,70 +273,69 @@ public:
         }
 
     public:
-        explicit post_order_iterator(Node<T> *node, size_t maxChildren) : current_node(nullptr), maxChildren(maxChildren) {
+        explicit postOrderIterator(Node<T> *node, size_t maxChildren) : currentNode(nullptr), maxChildren(maxChildren) {
             if (node) {
-                push_to_left_child(node);
+                add_left_child(node);
             }
+
             ++(*this);
         }
 
-        bool operator!=(const post_order_iterator &other) const {
-            return current_node != other.current_node;
+        bool operator!=(const postOrderIterator &other) const {
+            return currentNode != other.currentNode;
         }
 
         Node<T> *operator->() const {
-            return current_node;
+            return currentNode;
         }
 
         Node<T> &operator*() const {
-            return *current_node;
+            return *currentNode;
         }
 
-        post_order_iterator &operator++() {
-            if (!nodes.empty()) {
-
-                Node<T> *node = nodes.top();
-                nodes.pop();
-
-                if (!nodes.empty()) {
-                    const auto &parentChildren = nodes.top()->get_children();    
-
-                    auto child = find(parentChildren.begin(), parentChildren.end(), node);
-
-                    if (child != parentChildren.end() && ++child != parentChildren.end()) {
-                        push_to_left_child(*child);
-                    }
-                }
-
-                current_node = node;
-
-            } else {
-                current_node = nullptr;
+        postOrderIterator& operator++() {
+            if (nodes.empty()) {
+                currentNode = nullptr;
+                return *this;
             }
 
+            Node<T>* node = nodes.top();
+            nodes.pop();
+
+            if (!nodes.empty()) {
+                const auto& parentChildren = nodes.top()->get_children();
+                auto child = find(parentChildren.begin(), parentChildren.end(), node);
+
+                if (child != parentChildren.end() && ++child != parentChildren.end()) {
+                    add_left_child(*child);
+                }
+            }
+
+            currentNode = node;
             return *this;
         }
+
     };
 
     /**
      * Get an iterator to the beginning of the post-order traversal
      * @return Post-order iterator pointing to the root node
      */
-    post_order_iterator begin_post_order() const {
-        return post_order_iterator(root, maxChildren);
+    postOrderIterator begin_post_order() const {
+        return postOrderIterator(root, maxChildren);
     }
 
     /**
      * Get an iterator to the end of the post-order traversal
      * @return Post-order iterator pointing to the end (nullptr)
      */
-    post_order_iterator end_post_order() const {
-        return post_order_iterator(nullptr, maxChildren);
+    postOrderIterator end_post_order() const {
+        return postOrderIterator(nullptr, maxChildren);
     }
 
     /** 
      * BFS iterator class
-     * Provides an iterator for traversing the tree in breadth-first search (level by level).
+     * Provides an iterator for traversing the tree in BFS search (level by level).
      */
     class BFSIterator {
     private:
@@ -337,7 +343,9 @@ public:
 
     public:
         explicit BFSIterator(Node<T> *node) {
-            if (node) nodes.push(node);
+            if (node) { 
+                nodes.push(node);
+            }
         }
 
         bool operator!=(const BFSIterator &other) const {
@@ -367,7 +375,7 @@ public:
     };
 
     /**
-     * Get an iterator to the beginning of the breadth-first traversal
+     * Get an iterator to the beginning of the BFS traversal
      * @return BFS iterator pointing to the root node
      */
     BFSIterator begin_bfs_scan() const {
@@ -375,8 +383,8 @@ public:
     }
 
     /**
-     * Get an iterator to the end of the breadth-first traversal
-     * @return BFS iterator pointing to the end (nullptr)
+     * Get an iterator to the end of the BFS traversal
+     * @return BFS iterator pointing to the end - nullptr
      */
     BFSIterator end_bfs_scan() const {
         return BFSIterator(nullptr);
@@ -384,7 +392,7 @@ public:
 
     /** 
      * DFS iterator class
-     * Provides an iterator for traversing the tree in depth-first search (traverse deep before moving to next branch).
+     * Provides an iterator for traversing the tree in DFS search
      */
     class DFSIterator {
     private:
@@ -392,7 +400,9 @@ public:
 
     public:
         explicit DFSIterator(Node<T> *node) {
-            if (node) nodes.push(node);
+            if (node) { 
+                nodes.push(node);
+            }
         }
 
         bool operator!=(const DFSIterator &other) const {
@@ -422,7 +432,7 @@ public:
     };
 
     /**
-     * Get an iterator to the beginning of the depth-first traversal
+     * Get an iterator to the beginning of the DFS traversal
      * @return DFS iterator pointing to the root node
      */
     DFSIterator begin_dfs_scan() const {
@@ -430,14 +440,14 @@ public:
     }
 
     /**
-     * Get an iterator to the end of the depth-first traversal
-     * @return DFS iterator pointing to the end (nullptr)
+     * Get an iterator to the end of the DFS traversal
+     * @return DFS iterator pointing to the end - nullptr
      */
     DFSIterator end_dfs_scan() const {
         return DFSIterator(nullptr);
     }
     /**
-     * Get an iterator for breadth-first traversal (alias for BFSIterator)
+     * Get an iterator for BFS traversal 
      * @return BFS iterator pointing to the root node
      */
     BFSIterator begin() const {
@@ -445,8 +455,8 @@ public:
     }
 
     /**
-     * Get an iterator for breadth-first traversal (alias for BFSIterator)
-     * @return BFS iterator pointing to the end (nullptr)
+     * Get an iterator for BFS traversal
+     * @return BFS iterator pointing to the end - nullptr
      */
     BFSIterator end() const {
         return BFSIterator(nullptr);
@@ -454,95 +464,93 @@ public:
 
     /** 
      * Heap iterator class
-     * Provides an iterator for traversing the tree in a heap-like order (min-heap).
+     * Provides an iterator for traversing the tree in a heap order
      */
     class HeapIterator {
     private:
-        struct CompareNodes {
-            bool operator()(Node<T> *a, Node<T> *b) {
-                return a->get_value() > b->get_value();
-            }
-        };
+        vector<Node<T> *> nodes; // Vector to store heap nodes
+        size_t maxChildren;      // Maximum number of children to each node
 
-        vector<Node<T> *> heap_nodes;
-        size_t maxChildren;
+        bool compare_two_nodes(Node<T> *a, Node<T> *b) const {
+            return a->get_value() > b->get_value(); 
+        }
 
-        void collect_nodes(Node<T> *node) {
+        // An helper recursive function to traverse the tree and store nodes
+        void traverse_and_store(Node<T> *node) {
             if (node) {
-                heap_nodes.push_back(node);
+                nodes.push_back(node);
 
                 for (auto child : node->get_children()) {
-                    collect_nodes(child);
+                    traverse_and_store(child); 
                 }
             }
         }
 
     public:
-        explicit HeapIterator(Node<T> *root, size_t maxChildren) : maxChildren(maxChildren) {
-            collect_nodes(root);
-            make_heap(heap_nodes.begin(), heap_nodes.end(), CompareNodes());
+        // Constructor that initializes heap and stores nodes
+        HeapIterator(Node<T> *root, size_t maxChildren) : maxChildren(maxChildren) {
+            traverse_and_store(root); // Get all nodes starting from the root
+
+            auto compare = [this](Node<T>* a, Node<T>* b) {
+                return compare_two_nodes(a, b);
+            };
+
+            // Build the heap using the regular comparison function
+            make_heap(nodes.begin(), nodes.end(), compare);
         }
 
         bool operator!=(const HeapIterator &other) const {
-            return !heap_nodes.empty() != !other.heap_nodes.empty();
+            return !nodes.empty() != !other.nodes.empty();
         }
 
         Node<T> *operator->() const {
-            return heap_nodes.front();
+            return nodes.front();
         }
 
         Node<T> &operator*() const {
-            return *heap_nodes.front();
+            return *nodes.front();
         }
 
         HeapIterator &operator++() {
-            pop_heap(heap_nodes.begin(), heap_nodes.end(), CompareNodes());
-            heap_nodes.pop_back();
+            auto compare = [this](Node<T>* a, Node<T>* b) {
+                return compare_two_nodes(a, b);
+            };
+
+            pop_heap(nodes.begin(), nodes.end(), compare);
+            nodes.pop_back();
             return *this;
         }
     };
 
-    /**
-     * Get an iterator to the beginning of the heap-like traversal
-     * @return Heap iterator pointing to the smallest node (min-heap root)
-     */
-    HeapIterator begain_heap() const {
-        return HeapIterator(root, maxChildren);
-    }
-
-    /**
-     * Get an iterator to the end of the heap-like traversal
-     * @return Heap iterator pointing to the end (nullptr)
-     */
-    HeapIterator end_heap() const {
-        return HeapIterator(nullptr, maxChildren);
-    }
-
     /** 
      * Convert binary tree to min-heap
-     * This function rearranges the nodes to satisfy the min-heap property (binary tree by default).
+     * This function changes the nodes to satisfy the min-heap property
      * @param node The starting node of the tree to be converted
      */
-    void to_min_heap(Node<T> *node) {
-        if (!node) return;
-
-        for (auto child : node->get_children()) {
-            if (child != nullptr)
-                to_min_heap(child);
+    void myHeap(Node<T> *node) {
+        if (!node) { 
+            return;
         }
 
-        for (auto child : node->get_children()) {
+        auto children = node->get_children();
+
+        // Make sure all children are heaps and adjust the current node in recursive way
+        for (auto* child : children) {
+            myHeap(child);
+        }
+
+        // Change the current node to maintain heap property
+        for (auto* child : children) {
             if (child && node->get_value() > child->get_value()) {
                 swap(node->get_value(), child->get_value());
             }
         }
     }
 
-    /**
-     * Convert the entire tree to a min-heap
-     */
-    void to_min_heap() {
-        to_min_heap(root);
+    
+    // Convert the entire tree to a min-heap
+    void myHeap() {
+        myHeap(root);
     }
 };
 
