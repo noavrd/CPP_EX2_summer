@@ -71,13 +71,13 @@ Follow these steps to install it:
 
 * You can also use the `arial.ttf` file that is in this project
 
-2. **Build the Project**:
+2. **Build & run the Project**:
 
    To compile & run the project:
    ```sh
    make tree
 
-3. **Build the tests**:
+3. **Build & run the tests**:
 
    To compile & run the project:
    ```sh
